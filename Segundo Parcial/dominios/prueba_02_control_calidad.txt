@@ -1,0 +1,5 @@
+Si la camara detecta defecto o el sensor detecta falla, entonces el robot se detiene.
+Si el robot se detiene, entonces la alarma se activa.
+La camara detecta defecto o el sensor detecta falla.
+El motor funciona.
+El motor no falla.

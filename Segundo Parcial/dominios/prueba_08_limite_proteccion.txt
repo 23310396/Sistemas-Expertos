@@ -1,0 +1,9 @@
+El sensor detecta sector1 o el motor gira sector1.
+El sensor detecta sector2 o el motor gira sector2.
+El sensor detecta sector3 o el motor gira sector3.
+El sensor detecta sector4 o el motor gira sector4.
+El sensor detecta sector5 o el motor gira sector5.
+El sensor detecta sector6 o el motor gira sector6.
+El sensor detecta sector7 o el motor gira sector7.
+El sensor detecta sector8 o el motor gira sector8.
+El sensor detecta sector9 o el motor gira sector9.

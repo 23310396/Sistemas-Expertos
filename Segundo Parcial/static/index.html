@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Árbol semántico · Sistemas Expertos</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">◈</span><div><strong>LogicLab</strong><small>SISTEMAS EXPERTOS / SEGUNDO PARCIAL</small></div></div>
+    <span class="top-tag"><span class="status-dot"></span> Árbol · FNC · SAT · Consultas <span class="top-tag-extra">· Python</span></span>
+  </header>
+  <div class="layout">
+    <aside class="left-panel">
+      <div class="panel-title-row"><div><span class="eyebrow">01 / ENTRADA</span><h2>Planteamiento</h2></div><span class="step-pill">TXT → reglas</span></div>
+      <p class="muted intro">Elige un dominio o crea uno nuevo. El TXT se sincroniza con el editor, y los cálculos quedan guardados al analizar.</p>
+      <label class="section-label" for="dominio">DOMINIO ACTIVO</label>
+      <div class="domain-row">
+        <select id="dominio" aria-label="Seleccionar dominio"></select>
+        <button id="nuevo-dominio" type="button" title="Crear dominio" aria-label="Crear dominio">+ Nuevo</button>
+        <button id="recargar-dominio" type="button" title="Recargar desde TXT" aria-label="Recargar TXT">↻</button>
+      </div>
+      <p id="estado-dominio" class="domain-message" role="status">Cargando dominios…</p>
+      <a id="abrir-calculos" class="domain-link" target="_blank" rel="noopener" hidden>Ver cálculos guardados ↗</a>
+      <label class="section-label" for="editor">PROBLEMA</label>
+      <textarea id="editor" spellcheck="true" aria-label="Texto del problema"></textarea>
+      <div class="editor-meta"><span id="contador">0 caracteres</span><span>Un párrafo o varias líneas</span></div>
+      <button id="analizar" class="primary-button"><span class="icon-button">◇</span> Analizar problema <span class="arrow">→</span></button>
+      <div class="divider"></div>
+      <div class="section-head"><span class="section-label">RESULTADO DEL ANÁLISIS</span><span id="estado-analisis" class="muted tiny">Sin analizar</span></div>
+      <div id="errores" class="alert" hidden role="alert"></div>
+      <div class="metric-pair"><div class="mini-metric"><span>Átomos</span><strong id="total-atomos">—</strong></div><div class="mini-metric"><span>Reglas</span><strong id="total-reglas">—</strong></div></div>
+      <details class="data-details" open><summary>Proposiciones <span id="count-atomos">0</span></summary><div id="lista-atomos" class="data-list empty-text">Genera el análisis para ver los átomos.</div></details>
+      <details class="data-details" open><summary>Reglas interpretadas <span id="count-reglas">0</span></summary><div id="lista-reglas" class="data-list empty-text">Aquí aparecerán las reglas numeradas.</div></details>
+      <p class="panel-footnote">Las fórmulas se calculan en Python. La visualización no modifica el razonamiento.</p>
+    </aside>
+    <main class="center-panel">
+      <div class="canvas-header">
+        <div><span class="eyebrow">02 / VISUALIZACIÓN</span><h1>Análisis lógico <span id="arbol-estado" class="state-inline">Sin generar</span></h1></div>
+        <div class="count-bar"><span id="ramas-abiertas"><i class="dot green"></i> — abiertas</span><span id="ramas-cerradas"><i class="dot red"></i> — cerradas</span></div>
+      </div>
+      <nav class="view-tabs" role="tablist" aria-label="Etapas del razonamiento">
+        <button type="button" id="tab-arbol" class="view-tab selected" role="tab" aria-selected="true" aria-controls="vista-arbol">01 <strong>Árbol semántico</strong></button>
+        <button type="button" id="tab-fnc" class="view-tab" role="tab" aria-selected="false" aria-controls="vista-fnc">02 <strong>Forma Normal Conjuntiva</strong></button>
+        <button type="button" id="tab-sat" class="view-tab" role="tab" aria-selected="false" aria-controls="vista-sat">03 <strong>SAT Solver</strong></button>
+        <button type="button" id="tab-consultas" class="view-tab" role="tab" aria-selected="false" aria-controls="vista-consultas">04 <strong>Consultas</strong></button>
+      </nav>
+      <section id="vista-arbol" class="view-pane" role="tabpanel" aria-labelledby="tab-arbol">
+      <div class="controls">
+        <fieldset class="mode-field"><legend>Representación</legend><div class="switcher"><button type="button" id="simbolica" class="selected" aria-pressed="true">Simbólica</button><button type="button" id="natural" aria-pressed="false">Natural</button></div></fieldset>
+        <label class="toggle-box"><input type="checkbox" id="mostrar-cerradas" checked><span class="switch"></span><span>Contradicciones</span></label>
+        <div class="zoom-set" aria-label="Zoom"><button id="zoom-out" title="Alejar" aria-label="Alejar">−</button><span id="zoom-text">100%</span><button id="zoom-in" title="Acercar" aria-label="Acercar">+</button><button id="zoom-reset" title="Restablecer zoom">Ajustar</button></div>
+      </div>
+      <div class="tree-viewport" id="viewport"><div class="tree-placeholder" id="placeholder"><div class="placeholder-symbol">⌁</div><h2>Tu árbol aparecerá aquí</h2><p>Introduce un problema y presiona <b>Analizar problema</b> para desplegar sus posibilidades y contradicciones.</p></div><svg id="tree-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Árbol semántico" hidden></svg></div>
+      <div class="timeline"><div class="timeline-label"><span><b>Desarrollo paso a paso</b><small id="pasos-etiqueta">Sin nodos</small></span><button id="mostrar-todo" class="text-button">Mostrar todo</button></div><input id="pasos" type="range" min="1" max="1" value="1" disabled aria-label="Número de nodos visibles"><div class="timeline-edges"><span>INICIO</span><span>ÁRBOL COMPLETO</span></div></div>
+      <div class="bottom-note"><span class="legend"><i class="dot green"></i> Rama abierta</span><span class="legend"><i class="dot red"></i> Contradicción</span><span class="legend"><i class="dot blue"></i> Desarrollo</span><span class="note-right">Arrastra con clic izquierdo para moverte · Rueda para zoom · Clic en un nodo para ver detalles.</span></div>
+      </section>
+      <section id="vista-fnc" class="view-pane result-pane" role="tabpanel" aria-labelledby="tab-fnc" hidden>
+        <div class="stage-intro"><span class="eyebrow">CONVERSIÓN · ETAPA 02</span><h2>Forma Normal Conjuntiva</h2><p>Transformamos cada regla en cláusulas unidas por <b>Y (∧)</b>, donde cada cláusula contiene alternativas unidas por <b>O (∨)</b>.</p></div>
+        <div class="report-scroll">
+          <div class="report-card"><div class="report-card-head"><span>FÓRMULA COMPLETA</span><span id="fnc-info" class="mini-tag">Sin analizar</span></div><div id="fnc-completa" class="math-output">Analiza un problema para ver su FNC.</div></div>
+          <div class="report-card"><div class="report-card-head"><span>CONVERSIÓN POR REGLA</span></div><div id="fnc-reglas" class="rule-conversions"></div></div>
+          <div class="report-card"><div class="report-card-head"><span>CLÁUSULAS NUMÉRICAS</span><span class="mini-tag">Listas para SAT</span></div><div id="fnc-clausulas" class="math-output compact">—</div><p class="hint">Cada lista interior es una cláusula. Un número negativo representa una proposición negada.</p></div>
+          <div class="report-card"><div class="report-card-head"><span>FORMATO DIMACS</span><button id="copiar-dimacs" class="small-action" type="button">Copiar DIMACS</button></div><pre id="fnc-dimacs" class="dimacs-output">—</pre></div>
+        </div>
+      </section>
+      <section id="vista-sat" class="view-pane result-pane" role="tabpanel" aria-labelledby="tab-sat" hidden>
+        <div class="stage-intro"><span class="eyebrow">RESOLUCIÓN · ETAPA 03</span><h2>SAT Solver</h2><p>El solver comprueba las cláusulas de la FNC y compara su resultado con el árbol semántico.</p></div>
+        <div class="report-scroll">
+          <div class="sat-overview">
+            <div class="sat-tile"><span>SAT SOLVER</span><strong id="sat-resultado" class="sat-value">—</strong><small id="sat-motor">Sin analizar</small></div>
+            <div class="sat-tile"><span>ÁRBOL SEMÁNTICO</span><strong id="sat-arbol" class="sat-value">—</strong><small>Resultado independiente</small></div>
+            <div class="sat-tile"><span>COINCIDENCIA</span><strong id="sat-coincide" class="sat-value">—</strong><small>Verificación cruzada</small></div>
+          </div>
+          <div id="sat-mensaje" class="result-message">Analiza un problema para ver el resultado de SAT.</div>
+          <div class="report-card"><div class="report-card-head"><span>SOLUCIONES DEL SAT SOLVER</span><span id="sat-cuenta" class="mini-tag">0 visibles</span></div><div id="sat-soluciones" class="model-grid empty-text">Todavía no hay soluciones.</div><p id="sat-truncado" class="hint" hidden>Hay más soluciones válidas. Se muestran solamente las primeras 16.</p></div>
+          <div class="report-card"><div class="report-card-head"><span>INTERPRETACIÓN</span></div><p id="sat-explicacion" class="explanation">El programa indicará si existe al menos un mundo posible que cumpla todas las reglas.</p></div>
+        </div>
+      </section>
+      <section id="vista-consultas" class="view-pane result-pane" role="tabpanel" aria-labelledby="tab-consultas" hidden>
+        <div class="stage-intro"><span class="eyebrow">CONCLUSIONES · ETAPA 04</span><h2>Consultar las reglas</h2><p>Comprueba si una proposición es obligatoria, imposible o indeterminada. El programa utiliza el SAT Solver para evaluar su afirmación y su negación.</p></div>
+        <div class="report-scroll">
+          <div class="report-card">
+            <div class="report-card-head"><span>PREGUNTA LÓGICA</span><span class="mini-tag">No modifica las reglas</span></div>
+            <label class="form-label" for="pregunta">Escribe una proposición en español o un átomo (X1, X2...)</label>
+            <input id="pregunta" class="query-input" type="text" maxlength="2000" placeholder="Ejemplo: ¿Juan aprueba?" autocomplete="off">
+            <button id="enviar-consulta" class="primary-button query-button" type="button">Verificar conclusión →</button>
+            <div id="consulta-error" class="alert" hidden role="alert"></div>
+            <div id="consulta-resultado" class="query-result" aria-live="polite"><p class="muted">Analiza un problema y después escribe una consulta.</p></div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-head"><span>AGREGAR UNA REGLA</span><span class="mini-tag">Recalcular todo</span></div>
+            <label class="form-label" for="nueva-regla">La regla se añadirá al TXT activo y actualizará el árbol, FNC y SAT al analizar.</label>
+            <textarea id="nueva-regla" class="query-input extra-rule-input" rows="3" placeholder="Ejemplo: Juan no aprueba."></textarea>
+            <button id="agregar-regla" class="secondary-action" type="button">+ Agregar y volver a analizar</button>
+            <p class="hint">El TXT se guarda automáticamente. Al analizar se reemplaza el archivo de cálculos del dominio.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <aside class="right-panel">
+      <div class="panel-title-row"><div><span class="eyebrow">03 / INSPECCIÓN</span><h2>Detalles</h2></div><span class="info-icon">i</span></div>
+      <div id="detalle-vacio" class="inspect-empty"><div class="inspect-graphic">⌕</div><strong>Selecciona un nodo</strong><p>Podrás consultar su regla de origen, su expresión y si produjo alguna contradicción.</p></div>
+      <div id="detalle" hidden>
+        <div class="inspect-subtitle">NODO SELECCIONADO</div><h3 id="detalle-id">N1</h3><span id="detalle-estado" class="inspect-status">Desarrollo</span>
+        <div class="inspect-group"><span>EXPRESIÓN LÓGICA</span><div id="detalle-formula" class="formula-block"></div></div>
+        <div class="inspect-group"><span>LECTURA NATURAL</span><p id="detalle-natural"></p></div>
+        <div class="inspect-grid"><div><small>ORIGEN</small><strong id="detalle-origen">—</strong></div><div><small>OPERACIÓN</small><strong id="detalle-metodo">—</strong></div></div>
+        <div id="detalle-contradiccion" class="contradiction-info" hidden></div>
+      </div>
+      <div class="divider"></div>
+      <div class="panel-title-row smaller"><div><span class="eyebrow">04 / RESULTADO</span><h2>Mundos posibles</h2></div></div>
+      <p class="muted small">Asignaciones V/F que satisfacen todas las reglas.</p>
+      <div id="mundos" class="worlds empty-text">Analiza el problema para consultar las soluciones.</div>
+      <div id="mundos-alerta" class="muted tiny" hidden>Se muestra una cantidad limitada de mundos posibles.</div>
+    </aside>
+  </div>
+  <footer class="footer"><span>Sistemas Expertos · Árbol, FNC, SAT y consultas</span><span>El análisis se realiza localmente en el Codespace.</span></footer>
+</div>
+</body>
+</html>

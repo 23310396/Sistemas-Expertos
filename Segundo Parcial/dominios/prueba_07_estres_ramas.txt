@@ -1,0 +1,7 @@
+El sensor detecta zona1 o el motor gira zona1.
+El sensor detecta zona2 o el motor gira zona2.
+El sensor detecta zona3 o el motor gira zona3.
+El sensor detecta zona4 o el motor gira zona4.
+El sensor detecta zona5 o el motor gira zona5.
+El sensor detecta zona6 o el motor gira zona6.
+El sensor detecta zona7 o el motor gira zona7.

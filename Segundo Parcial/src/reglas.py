@@ -8,16 +8,18 @@ def formatear_expresion(nodo):
     if operador == "NO":
         hijo = nodo["args"][0]
         expresion = formatear_expresion(hijo)
-        return f"¬({expresion})" if hijo["op"] in {"Y", "O", "IMPLICA"} else f"¬{expresion}"
-    if operador in {"Y", "O", "IMPLICA"}:
+        return f"¬({expresion})" if hijo["op"] in {"Y", "O", "IMPLICA", "BICONDICIONAL"} else f"¬{expresion}"
+    if operador in {"Y", "O", "IMPLICA", "BICONDICIONAL"}:
         partes = []
         for hijo in nodo["args"]:
             expresion = formatear_expresion(hijo)
-            if hijo["op"] in {"Y", "O", "IMPLICA"} and (operador == "IMPLICA" or hijo["op"] != operador):
+            if hijo["op"] in {"Y", "O", "IMPLICA", "BICONDICIONAL"} and (operador in {"IMPLICA", "BICONDICIONAL"} or hijo["op"] != operador):
                 expresion = f"({expresion})"
             partes.append(expresion)
         if operador == "IMPLICA":
             return " → ".join(partes)
+        if operador == "BICONDICIONAL":
+            return " ↔ ".join(partes)
         return (" ∧ " if operador == "Y" else " ∨ ").join(partes)
     raise ValueError(f"Operador desconocido: {operador}")
 

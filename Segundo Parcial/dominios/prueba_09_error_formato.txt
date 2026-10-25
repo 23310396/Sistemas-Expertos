@@ -1,0 +1,1 @@
+El sensor detecta falla y el motor funciona o la alarma se activa.

@@ -1,1 +1,0 @@
-Si el sensor detecta movimiento y (el motor funciona o la alarma se activa), entonces el robot se detiene. Si el robot se detiene, entonces el operador revisa la maquina. El sensor detecta movimiento. El motor no funciona. No es cierto que la alarma se activa. El operador revisa la maquina.

@@ -1,0 +1,5 @@
+Si (el sensor detecta falla o la camara detecta defecto) y el motor funciona, entonces el robot se detiene.
+Si el robot se detiene, entonces el operador revisa equipo.
+El motor funciona.
+El sensor detecta falla o la camara detecta defecto.
+El operador revisa equipo.

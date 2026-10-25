@@ -1,0 +1,5 @@
+No es cierto que el motor funciona y la alarma se activa.
+El motor funciona.
+Si el motor funciona, entonces el ventilador gira.
+Si el ventilador gira, entonces el robot se detiene.
+El sensor detecta presencia o el sensor detecta falla.

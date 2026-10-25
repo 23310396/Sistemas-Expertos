@@ -1,0 +1,5 @@
+El boton funciona o el sensor detecta presencia.
+Si el boton funciona, entonces la puerta se activa.
+Si el sensor detecta presencia, entonces el motor gira.
+Si la puerta se activa, entonces el registro inicia ciclo.
+El sistema no falla.

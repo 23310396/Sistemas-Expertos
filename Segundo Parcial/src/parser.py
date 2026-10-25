@@ -18,7 +18,7 @@ estaban hay toma toman revisa revisan entra entran manda mandan envía envían
 ARTICULOS = {"el", "la", "los", "las", "un", "una", "unos", "unas"}
 PRONOMBRES = {"yo", "tú", "tu", "él", "ella", "nosotros", "nosotras", "ustedes", "ellos", "ellas"}
 NO_ADMITIDOS = re.compile(
-    r"\b(?:pero|porque|aunque|mientras|cuando|a menos que|siempre que|si y solo si|solo si|solamente si|ni)\b",
+    r"\b(?:pero|porque|aunque|mientras|cuando|a menos que|siempre que|solo si|solamente si|ni)\b",
     re.I,
 )
 
@@ -107,6 +107,24 @@ def interpretar(texto, sujeto=None):
     if not texto:
         raise ErrorInterpretacion("Hay una condición o proposición vacía.")
 
+    negacion = re.fullmatch(r"no es cierto que\s+(.+)", texto, re.I)
+    if negacion:
+        return nodo("NO", interpretar(negacion.group(1), sujeto))
+
+    # El bicondicional tiene menor precedencia que "si... entonces".
+    bicondicionales = operadores_externos(texto, r"\bsi\s+y\s+solo\s+si\b")
+    if bicondicionales:
+        if len(bicondicionales) != 1:
+            raise ErrorInterpretacion('Agrupa los bicondicionales con paréntesis.')
+        punto = bicondicionales[0]
+        izquierda = texto[:punto.start()].strip()
+        derecha = texto[punto.end():].strip()
+        if not izquierda or not derecha:
+            raise ErrorInterpretacion('"Si y solo si" necesita dos proposiciones.')
+        sujeto_izq = detectar_sujeto(sin_parentesis_externos(izquierda)) or sujeto
+        return nodo('BICONDICIONAL', interpretar(izquierda, sujeto_izq),
+                    interpretar(derecha, sujeto_izq))
+
     if re.match(r"^si\s+", texto, re.I):
         resto = re.sub(r"^si\s+", "", texto, count=1, flags=re.I)
         partes = operadores_externos(resto, r"\bentonces\b")
@@ -117,10 +135,6 @@ def interpretar(texto, sujeto=None):
         derecha = resto[posicion.end():].strip()
         sujeto_condicion = detectar_sujeto(sin_parentesis_externos(izquierda)) or sujeto
         return nodo("IMPLICA", interpretar(izquierda, sujeto_condicion), interpretar(derecha, sujeto_condicion))
-
-    negacion = re.fullmatch(r"no es cierto que\s+(.+)", texto, re.I)
-    if negacion:
-        return nodo("NO", interpretar(negacion.group(1), sujeto))
 
     conectores = operadores_externos(texto, r"\b(y|o)\b")
     if conectores:

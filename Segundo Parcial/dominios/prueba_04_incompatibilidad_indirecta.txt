@@ -1,0 +1,5 @@
+Si el sensor detecta presencia, entonces el robot inicia ciclo.
+Si el robot inicia ciclo, entonces la alarma se activa.
+Si la alarma se activa, entonces el motor se detiene.
+El sensor detecta presencia.
+El motor no se detiene.

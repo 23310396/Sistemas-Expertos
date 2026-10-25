@@ -5,6 +5,7 @@ from pathlib import Path
 from .atomos import RegistroAtomos
 from .parser import ErrorInterpretacion
 from .reglas import RegistroReglas
+from .simbolos import letra, simbolizar
 
 
 def separar_oraciones(texto):
@@ -18,7 +19,7 @@ def mostrar(titulo, elementos):
 
 
 def main():
-    archivo = Path(sys.argv[1] if len(sys.argv) > 1 else "entrada.txt")
+    archivo = Path(sys.argv[1]) if len(sys.argv) > 1 else (Path("dominios/entrada.txt") if Path("dominios/entrada.txt").exists() else Path("dominios/ejemplo.txt"))
     try:
         texto = archivo.read_text(encoding="utf-8-sig")
     except (OSError, UnicodeError) as error:
@@ -35,8 +36,8 @@ def main():
             errores.append((oracion, error))
 
     print("\nSISTEMA DE INTERPRETACION LOGICA")
-    mostrar("ATOMOS IDENTIFICADOS", (f"{id} = {texto}" for id, texto in atomos.obtener_atomos().items()))
-    mostrar("REGLAS IDENTIFICADAS", (f"{r['id']} = {r['expresion']}" for r in reglas.obtener_reglas()))
+    mostrar("ATOMOS IDENTIFICADOS", (f"{letra(id)} = {texto}" for id, texto in atomos.obtener_atomos().items()))
+    mostrar("REGLAS IDENTIFICADAS", (f"{r['id']} = {simbolizar(r['expresion'])}" for r in reglas.obtener_reglas()))
     if errores:
         mostrar("ORACIONES NO INTERPRETADAS", (f"- {texto}\n  Motivo: {error}" for texto, error in errores))
     print(f"\n{'=' * 45}")

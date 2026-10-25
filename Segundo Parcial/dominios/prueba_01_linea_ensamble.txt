@@ -1,0 +1,6 @@
+Si el sensor detecta pieza, entonces el robot inicia ciclo.
+Si el robot inicia ciclo, entonces la camara revisa pieza.
+Si la camara revisa pieza y el motor funciona, entonces el actuador activa prensa.
+Si el actuador activa prensa, entonces la banda se detiene.
+El sensor detecta pieza.
+El motor funciona.
